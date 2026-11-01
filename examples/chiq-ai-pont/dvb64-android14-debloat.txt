@@ -1,0 +1,7 @@
+# CHiQ AI PONT (Changhong DVB64), Android 14. Apply: tools/disable.sh examples/chiq-ai-pont/debloat.txt   Undo: tools/restore.sh <same file>
+com.android.ondevicepersonalization.services
+com.android.federatedcompute.services
+org.obs.mhegservice
+tv.mopa.ginga
+com.gdch.gameoptimiser
+app.zeniptv.mobile

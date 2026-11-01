@@ -1,0 +1,50 @@
+# Wallpaper credits (Wikimedia Commons)
+
+- 001.jpg: Spiti River Right Bank Vista Himachal Jun18 D72 7645.jpg by This Photo was taken by Timothy A. Gonsalves.  Feel free to use my photos, but p, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Spiti_River_Right_Bank_Vista_Himachal_Jun18_D72_7645.jpg
+- 002.jpg: Centro de Ciencia, Macao, 2013-08-08, DD 09.jpg by Diego Delso, CC BY-SA 3.0 - https://commons.wikimedia.org/wiki/File:Centro_de_Ciencia,_Macao,_2013-08-08,_DD_09.jpg
+- 003.jpg: View of Psebaisky Zoological Reserve in Krasnodar Krai, Russia - 2017.jpg by HoroshilovAleksandr, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:View_of_Psebaisky_Zoological_Reserve_in_Krasnodar_Krai,_Russia_-_2017.jpg
+- 004.jpg: Jerusalem-A-Quds-2013(2)-Aerial-Al-Aqsa Mosque Compound-(south exposure).jpg by Godot13, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Jerusalem-A-Quds-2013(2)-Aerial-Al-Aqsa_Mosque_Compound-(south_exposure).jpg
+- 005.jpg: Bangkok skytrain sunset.jpg by User:Diliff, CC BY-SA 3.0 - https://commons.wikimedia.org/wiki/File:Bangkok_skytrain_sunset.jpg
+- 006.jpg: Sunset of Mykonos.jpg by Roberto Faccenda, CC BY-SA 2.0 - https://commons.wikimedia.org/wiki/File:Sunset_of_Mykonos.jpg
+- 007.jpg: Algar do Carvao, isla de Terceira, Azores, Portugal, 2020-07-25, DD 68-70 HDR.jpg by Diego Delso, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Algar_do_Carvao,_isla_de_Terceira,_Azores,_Portugal,_2020-07-25,_DD_68-70_HDR.jpg
+- 008.jpg: Ermita de la Virgen de la Mencalilla, Almazul, Soria, España, 2015-12-29, DD 33.JPG by Diego Delso, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Ermita_de_la_Virgen_de_la_Mencalilla,_Almazul,_Soria,_Espa%C3%B1a,_2015-12-29,_DD_33.JPG
+- 009.jpg: 20100911 Kotani village close panorama Xanthi Thrace Greece.jpg by User:Ggia, CC BY-SA 3.0 - https://commons.wikimedia.org/wiki/File:20100911_Kotani_village_close_panorama_Xanthi_Thrace_Greece.jpg
+- 010.jpg: Buitrago del Lozoya - 04.jpg by Carlos Delgado, CC BY-SA 3.0 - https://commons.wikimedia.org/wiki/File:Buitrago_del_Lozoya_-_04.jpg
+- 011.jpg: Ayuntamiento y Shard, Londres, Inglaterra, 2014-08-11, DD 076.JPG by Diego Delso, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Ayuntamiento_y_Shard,_Londres,_Inglaterra,_2014-08-11,_DD_076.JPG
+- 012.jpg: International Commerce Centre on Victoria Harbour.jpg by Wilfredor, CC0 - https://commons.wikimedia.org/wiki/File:International_Commerce_Centre_on_Victoria_Harbour.jpg
+- 013.jpg: 2014-09-29 - Reichsbrücke-Donau City-Sunken City.jpg by Hubertl, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:2014-09-29_-_Reichsbr%C3%BCcke-Donau_City-Sunken_City.jpg
+- 014.jpg: Hong Kong Skyline Restitch - Dec 2007.jpg by Diliff, CC BY 3.0 - https://commons.wikimedia.org/wiki/File:Hong_Kong_Skyline_Restitch_-_Dec_2007.jpg
+- 015.jpg: Dülmen, Dernekamp, Mini Hatch Cooper -- 2018 -- 1545-51.jpg by Dietmar Rabich, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:D%C3%BClmen,_Dernekamp,_Mini_Hatch_Cooper_--_2018_--_1545-51.jpg
+- 016.jpg: Three golden statues of the Buddha at Wat Mai with colorful clouds at sunset in Luang Prabang Laos.jpg by Basile Morin, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Three_golden_statues_of_the_Buddha_at_Wat_Mai_with_colorful_clouds_at_sunset_in_Luang_Prabang_Laos.jpg
+- 017.jpg: Lower Manhattan from Jersey City July 2014 002.jpg by King of Hearts, CC BY-SA 3.0 - https://commons.wikimedia.org/wiki/File:Lower_Manhattan_from_Jersey_City_July_2014_002.jpg
+- 018.jpg: Bergtocht van Gimillan (1805m.) naar Colle Tsa Sètse in Cogne Valley (Italië). Zicht op de omringende alpen 01.jpg by Dominicus Johannes Bergsma, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Bergtocht_van_Gimillan_(1805m.)_naar_Colle_Tsa_S%C3%A8tse_in_Cogne_Valley_(Itali%C3%AB)._Zicht_op_de_omringende_alpen_01.jpg
+- 019.jpg: High rise view of Capitol Hill at night, looking east from Pine and 9th.jpg by Dllu, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:High_rise_view_of_Capitol_Hill_at_night,_looking_east_from_Pine_and_9th.jpg
+- 020.jpg: A14 Rheintalautobahn.JPG by Feel free to use my photos, but please mention me as the author and if you want , CC BY-SA 3.0 at - https://commons.wikimedia.org/wiki/File:A14_Rheintalautobahn.JPG
+- 021.jpg: Icelandic Landscape near Neskaupstaður July 2014.JPG by Martin Falbisoner, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Icelandic_Landscape_near_Neskaupsta%C3%B0ur_July_2014.JPG
+- 022.jpg: San Diego Reflecting Pond.jpg by Rufustelestrat, CC BY 2.5 - https://commons.wikimedia.org/wiki/File:San_Diego_Reflecting_Pond.jpg
+- 023.jpg: Cañón Silfra, Parque Nacional de Þingvellir, Suðurland, Islandia, 2014-08-16, DD 055.JPG by Diego Delso, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Ca%C3%B1%C3%B3n_Silfra,_Parque_Nacional_de_%C3%9Eingvellir,_Su%C3%B0urland,_Islandia,_2014-08-16,_DD_055.JPG
+- 024.jpg: Chinon from above.JPG by Martin Falbisoner, CC BY-SA 3.0 - https://commons.wikimedia.org/wiki/File:Chinon_from_above.JPG
+- 025.jpg: Crimea, Ai-Petri, low clouds.jpg by Dmytro Balkhovitin, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Crimea,_Ai-Petri,_low_clouds.jpg
+- 026.jpg: Skyline of the Central Business District of Singapore with Esplanade Bridge in the evening.jpg by Basile Morin, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Skyline_of_the_Central_Business_District_of_Singapore_with_Esplanade_Bridge_in_the_evening.jpg
+- 027.jpg: Iceland - 2017-02-22 - Gullfoss - 3684.jpg by Pierre-Selim Huard, CC BY 4.0 - https://commons.wikimedia.org/wiki/File:Iceland_-_2017-02-22_-_Gullfoss_-_3684.jpg
+- 028.jpg: Landscape with stormy clouds and a pirogue on the Mekong at golden hour in Si Phan Don.jpg by Basile Morin, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Landscape_with_stormy_clouds_and_a_pirogue_on_the_Mekong_at_golden_hour_in_Si_Phan_Don.jpg
+- 029.jpg: Water reflection of karst mountains at golden hour in Vang Vieng Laos (panoramic).jpg by Basile Morin, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Water_reflection_of_karst_mountains_at_golden_hour_in_Vang_Vieng_Laos_(panoramic).jpg
+- 030.jpg: SeattleI5Skyline.jpg by Cacophony, CC BY-SA 3.0 - https://commons.wikimedia.org/wiki/File:SeattleI5Skyline.jpg
+- 031.jpg: Skógafoss July 2014.JPG by Martin Falbisoner, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Sk%C3%B3gafoss_July_2014.JPG
+- 032.jpg: Wrocław - widok z Wyspy Slodowej - wyspa Tamka.jpg by Jar.ciurus, CC BY-SA 3.0 pl - https://commons.wikimedia.org/wiki/File:Wroc%C5%82aw_-_widok_z_Wyspy_Slodowej_-_wyspa_Tamka.jpg
+- 033.jpg: Colorful sky with orange and pink clouds reflecting in the water of a paddy field at dusk in Don Det Laos.jpg by Basile Morin, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Colorful_sky_with_orange_and_pink_clouds_reflecting_in_the_water_of_a_paddy_field_at_dusk_in_Don_Det_Laos.jpg
+- 034.jpg: Mount Lorette panorama.jpg by The Cosmonaut, CC BY-SA 2.5 ca - https://commons.wikimedia.org/wiki/File:Mount_Lorette_panorama.jpg
+- 035.jpg: Battery Park City New York January 2018 002.jpg by King of Hearts, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Battery_Park_City_New_York_January_2018_002.jpg
+- 036.jpg: Kuang Si Falls and a turquoise water pool in Luang Prabang province Laos.jpg by Basile Morin, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Kuang_Si_Falls_and_a_turquoise_water_pool_in_Luang_Prabang_province_Laos.jpg
+- 037.jpg: Blasieholmen February 2013.jpg by Arild Vågen, CC BY-SA 3.0 - https://commons.wikimedia.org/wiki/File:Blasieholmen_February_2013.jpg
+- 038.jpg: Manneporte en soir.jpg by Jörg Braukmann, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Manneporte_en_soir.jpg
+- 039.jpg: Watzmann (Stanggaß).jpg by Jörg Braukmann, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Watzmann_(Stangga%C3%9F).jpg
+- 040.jpg: Skjálfandafljót at Route 1.jpg by Villy Fink Isaksen, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Skj%C3%A1lfandaflj%C3%B3t_at_Route_1.jpg
+- 041.jpg: 2013-Aerial-Mount of Olives.jpg by Godot13, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:2013-Aerial-Mount_of_Olives.jpg
+- 042.jpg: Innenhafen Duisburg Blaue Stunde 2014.jpg by Tuxyso, CC BY-SA 3.0 - https://commons.wikimedia.org/wiki/File:Innenhafen_Duisburg_Blaue_Stunde_2014.jpg
+- 043.jpg: CH.ZG.Zug View from Guggi 01 16x9+R 8192x4608 Br058 gp denoising Br075.jpg by NOTE: This image is a panorama  consisting of multiple frames that were merged o, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:CH.ZG.Zug_View_from_Guggi_01_16x9%2BR_8192x4608_Br058_gp_denoising_Br075.jpg
+- 044.jpg: Ericushöft (Hamburg-HafenCity).14.12471.ajb.jpg by Ajepbah, CC BY-SA 3.0 de - https://commons.wikimedia.org/wiki/File:Ericush%C3%B6ft_(Hamburg-HafenCity).14.12471.ajb.jpg
+- 045.jpg: Breil-Brigels, Lag da Breil- Flem. 23-09-2022. (actm.) 11.jpg by Agnes Monkelbaan, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Breil-Brigels,_Lag_da_Breil-_Flem._23-09-2022._(actm.)_11.jpg
+- 046.jpg: Kleinarl Jägersee 20180209.jpg by Uoaei1, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:Kleinarl_J%C3%A4gersee_20180209.jpg
+- 047.jpg: Масив Близниці.jpg by Estolyarov, CC BY-SA 4.0 - https://commons.wikimedia.org/wiki/File:%D0%9C%D0%B0%D1%81%D0%B8%D0%B2_%D0%91%D0%BB%D0%B8%D0%B7%D0%BD%D0%B8%D1%86%D1%96.jpg
+- 048.jpg: 20090719 Crkva Gospa od Zdravlja Kotor Bay Montenegro.jpg by User:Ggia, CC BY-SA 3.0 - https://commons.wikimedia.org/wiki/File:20090719_Crkva_Gospa_od_Zdravlja_Kotor_Bay_Montenegro.jpg

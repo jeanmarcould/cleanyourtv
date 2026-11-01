@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp" android:height="96dp"
+    android:viewportWidth="96" android:viewportHeight="96">
+    <path android:fillColor="#FF1B2433"
+        android:pathData="M0,0H96V96H0Z" />
+    <!-- screen -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M18,24H78A4,4 0 0 1 82,28V62A4,4 0 0 1 78,66H18A4,4 0 0 1 14,62V28A4,4 0 0 1 18,24ZM19,29V61H77V29Z" />
+    <!-- stand -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M34,72H62V76H34Z" />
+    <!-- house on screen -->
+    <path android:fillColor="#FF6EC1FF"
+        android:pathData="M48,34L36,45H40V56H45V49H51V56H56V45H60Z" />
+</vector>

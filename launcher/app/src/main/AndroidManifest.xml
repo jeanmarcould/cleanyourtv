@@ -24,7 +24,15 @@
 
     <!-- Android 11+ package visibility: lets the launcher list the TV apps it shows as tiles, and the
          apps that declare a module card (docs/specs/card.md). -->
+    <!-- Only for the daily wallpaper update (WallpaperUpdater): images from Wikimedia Commons. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <queries>
+        <!-- The TV's own Google TV home, so the Google TV tile and gear row can find it. -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME" />
+        </intent>
         <!-- The standard settings handlers, so package visibility doesn't hide them and send the pills to a vendor fallback by mistake. -->
         <intent>
             <action android:name="android.settings.SETTINGS" />
@@ -139,6 +147,37 @@
             android:excludeFromRecents="true"
             android:noHistory="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
+        <activity
+            android:name=".HomeCustomizeActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.TvHome" />
+        <activity
+            android:name=".HomeLauncherActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.TvHome" />
+        <activity
+            android:name=".WallpaperSettingsActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.TvHome" />
+        <activity
+            android:name=".DisplaySettingsActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.TvHome" />
+        <activity
+            android:name=".WallpaperManagerActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.TvHome" />
+        <activity
+            android:name=".WeatherSettingsActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:theme="@style/Theme.TvHome" />
         <activity
             android:name=".HomeSettingsActivity"
             android:exported="false"

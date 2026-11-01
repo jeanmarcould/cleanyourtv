@@ -78,6 +78,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
+import java.util.Random;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -144,6 +145,20 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private RecyclerView grid;
     private FrameLayout root;
     private WallpaperPlayer wallpaperPlayer;
+    private DrawerFrost drawerFrost;
+    private WallpaperUpdater wallpaperUpdater;
+    private boolean wallpaperOn;
+    private WeatherPanel weatherPanel;
+
+    private final Runnable weatherTick = this::weatherTickNow;
+
+    // ---- ambient mode: after a while idle on Home only the clock panel, the wallpaper and its credit stay ----
+    private static final long AMBIENT_DEFAULT_MIN = 5;
+    private boolean ambientMode;
+    private long ambientSwallowUntil;
+    private TextView ambientCredit;
+    private final Runnable enterAmbient = this::startAmbient;
+    private final Runnable driftClock = this::driftClockPanel;
     private GlassView glass;
     private View ambient;
     private TextView heroName;
@@ -330,6 +345,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean reordering;
     /** Key of the tile being carried in reorder mode, or null. */
     private String movingKey;
+    /** Banner and arrows shown while reorder mode is on. */
+    private ReorderCue reorderCue;
     /** Tile order when reorder mode started, to save only when something moved. */
     private List<String> orderAtStart;
     /**
@@ -495,12 +512,21 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         coocaaSources = cfg.coocaaSources;
 
         root = findViewById(R.id.root);
+        reorderCue = new ReorderCue(this, REORDER_ACCENT);
+        root.addView(reorderCue, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
         root.setBackgroundColor(cfg.backgroundColor);
         // root fills the window with an opaque colour (Config keeps background_color opaque), so the window's own
         // black under it is a second full-screen fill on every frame for nothing. The starting window still uses
         // the theme's background, so launch looks the same.
         getWindow().setBackgroundDrawable(null);
         wallpaperPlayer = new WallpaperPlayer(this, root, cfg);
+        drawerFrost = new DrawerFrost(this, wallpaperPlayer, root);
+        root.addView(drawerFrost, Math.max(0, root.indexOfChild(wallpaperPlayer.topLayer()) + 1),
+                new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        wallpaperPlayer.setFrostListener(this::onFrostChanged);
+        wallpaperPlayer.setFrostFrameListener(this::onFrostFrame);
+        wallpaperUpdater = new WallpaperUpdater(this);
+        wallpaperOn = cfg.wallpaperEnabled;
         sky = findViewById(R.id.sky);
         sky.setIntensity(cfg.skyIntensity);
         glass = findViewById(R.id.glass);
@@ -674,8 +700,71 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             public void onChildViewDetachedFromWindow(@NonNull View v) {
             }
         });
-        if (dockRow) grid.addItemDecoration(new DockDecoration(COLUMNS, density, cinematic, cfg.alwaysShowNames, cfg.dockOpacity, cfg.dockGlass, cfg.dockEvenPadding, cfg.dockBand,
-                singleRow, cfg.dockBandAll));
+        if (dockRow) {
+            DockDecoration dockDecoration = new DockDecoration(COLUMNS, density, cinematic, cfg.alwaysShowNames, cfg.dockOpacity, cfg.dockGlass, cfg.dockEvenPadding, cfg.dockBand,
+                    singleRow, cfg.dockBandAll);
+            dockDecoration.setFrost(wallpaperPlayer, root);
+            grid.addItemDecoration(dockDecoration);
+        }
+        // Pulling the app drawer up frosts the whole wallpaper behind the tiles.
+        grid.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
+                drawerFrost.setProgress(rv.computeVerticalScrollOffset() / (140f * density));
+            }
+        });
+        // A frosted panel behind the greeting, clock and date, so they read over any wallpaper.
+        View leftBlockView = findViewById(R.id.leftBlock);
+        leftBlockView.setWillNotDraw(false);
+        leftBlockView.setBackground(new LeftFrost(leftBlockView, root, wallpaperPlayer, density,
+                (TextView) findViewById(R.id.greeting), (TextView) findViewById(R.id.clock), (TextView) findViewById(R.id.ampm),
+                (TextView) findViewById(R.id.date)));
+        // The long date beside the clock is replaced by the short one above it.
+        ((View) findViewById(R.id.date).getParent()).setVisibility(View.GONE);
+        findViewById(R.id.clockDivider).setVisibility(View.GONE);
+        // Weather beside the clock panel, the same height; OK on either panel opens its settings.
+        TextView clockText = findViewById(R.id.clock);
+        // Sized so the date line and the time fit a panel the size of one dock tile.
+        // Both lines centred in a box as wide as the tile's inside, so the text sits on the tile's centre line.
+        int panelInner = Math.round((WeatherPanel.TILE_W_DP - 2 * WeatherPanel.PAD_DP) * density);
+        greeting.setGravity(Gravity.CENTER_HORIZONTAL);
+        LinearLayout.LayoutParams greetingParams = (LinearLayout.LayoutParams) greeting.getLayoutParams();
+        greetingParams.width = panelInner;
+        greetingParams.setMarginStart(0);
+        greeting.setLayoutParams(greetingParams);
+        LinearLayout clockRow = (LinearLayout) findViewById(R.id.clock).getParent();
+        clockRow.setGravity(Gravity.CENTER_HORIZONTAL);
+        clockRow.getLayoutParams().width = panelInner;
+        greeting.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 9f);
+        clockText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 30f);
+        ((TextView) findViewById(R.id.ampm)).setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 10f);
+        // In 24-hour mode the AM/PM label is empty but still takes its margin, which pulled the time off-centre.
+        findViewById(R.id.ampm).setVisibility(ClockFormat.is24(this, cfg.clockFormat) ? View.GONE : View.VISIBLE);
+        // Letter-spacing adds space after the last character; pad the other side by the same so the text is centred.
+        greeting.setPaddingRelative(Math.round(greeting.getLetterSpacing() * greeting.getTextSize()), 0, 0, 0);
+        weatherPanel = new WeatherPanel(this, wallpaperPlayer, root, density, clockText.getTypeface(),
+                clockText.getTextSize(), greeting.getTypeface(), greeting.getTextSize(), greeting.getLetterSpacing());
+        weatherPanel.setId(View.generateViewId());
+        FrameLayout.LayoutParams weatherParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                Math.round(100 * density), Gravity.TOP | Gravity.START);
+        weatherParams.leftMargin = Math.round(420 * density);
+        root.addView(weatherPanel, weatherParams);
+        ((LeftFrost) leftBlockView.getBackground()).setOnPanel(panel -> root.post(() -> {
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) weatherPanel.getLayoutParams();
+            lp.leftMargin = Math.round(panel.right + 14 * density);
+            lp.topMargin = Math.round(panel.top);
+            lp.height = Math.round(panel.height());
+            weatherPanel.setLayoutParams(lp);
+            int[] g = new int[2], c = new int[2], r = new int[2];
+            greeting.getLocationInWindow(g);
+            clockText.getLocationInWindow(c);
+            root.getLocationInWindow(r);
+            weatherPanel.setBaselines(g[1] - r[1] + greeting.getBaseline() - panel.top,
+                    c[1] - r[1] + clockText.getBaseline() - panel.top);
+        }));
+        View.OnLayoutChangeListener repaintLeft = (v, l, t, r, b, ol, ot, or, ob) -> leftBlockView.invalidate();
+        findViewById(R.id.clock).addOnLayoutChangeListener(repaintLeft);
+        findViewById(R.id.date).addOnLayoutChangeListener(repaintLeft);
         if (cfg.fadeRows) TopFade.attach(grid, 48 * density);
         // Reduced motion: the tiles are simply there, with no entrance (reloadApps skips it there too).
         if (animations && !reducedMotion) {
@@ -851,8 +940,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (cfg.topMenu) {
             // One gear: Inputs and Wi-Fi move into its dropdown. The Wi-Fi pill stays hidden but keeps its
             // label up to date, which the menu's Wi-Fi row shows.
-            showInputsPill = false;
-            btnInputs.setVisibility(View.GONE);
+            // This build keeps the Inputs pill beside the gear: two buttons, Inputs and a gear for the rest.
+            showInputsMenuRow = false;
             btnWifi.setVisibility(View.GONE);
             ((TextView) btnSettings).setText(R.string.settings);
             ((TextView) btnSettings).setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_settings, 0, 0, 0);
@@ -872,6 +961,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             makeIconOnly((TextView) btnSettings);
         }
         if (cfg.iconOnlyInputs) makeIconOnly((TextView) btnInputs);
+        if (cfg.topMenu && cfg.iconOnlyButtons && cfg.iconOnlyInputs) {
+            // Two buttons at the top right: names on focus, and Left/Right step between them.
+            btnInputs.setNextFocusLeftId(R.id.btnInputs);
+            btnInputs.setNextFocusRightId(R.id.btnSettings);
+            btnSettings.setNextFocusLeftId(R.id.btnInputs);
+            btnSettings.setNextFocusRightId(R.id.btnSettings);
+        }
         iconOnlyVpn = vpnPill && cfg.iconOnlyVpn;
         if (iconOnlyVpn) {
             vpnPlainBackground = btnVpn.getBackground().getConstantState();
@@ -897,9 +993,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             int firstButton = btnInputs.getVisibility() == View.VISIBLE ? R.id.btnInputs : firstTopButton().getId();
             int leftButton = rtlMenuBar ? R.id.btnSettings : firstButton;
             int rightButton = rtlMenuBar ? firstButton : R.id.btnSettings;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) return v.getId() == leftButton;
+            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                return v.getId() == leftButton;
+            }
             return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == rightButton;
         };
+        // The two header panels: Left/Right step along the row, Down goes back to the dock tile, Up stays.
         btnInputs.setOnKeyListener(pillKeys);
         btnWifi.setOnKeyListener(pillKeys);
         btnVpn.setOnKeyListener(pillKeys);
@@ -911,9 +1010,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             List<View> pills = new ArrayList<>(Arrays.asList(btnInputs, btnWifi, btnVpn, btnReorder, btnLibraryTop, btnSettings));
             pills.addAll(topAppButtons);
             for (View button : pills) {
-                button.setOnFocusChangeListener((view, focused) -> view.animate()
-                        .scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
-                        .setDuration(reducedMotion ? Motion.REDUCED_MS : 160).start());
+                View.OnFocusChangeListener earlier = button.getOnFocusChangeListener();   // e.g. the hover label
+                button.setOnFocusChangeListener((view, focused) -> {
+                    if (earlier != null) earlier.onFocusChange(view, focused);
+                    view.animate().scaleX(focused ? 1.04f : 1f).scaleY(focused ? 1.04f : 1f)
+                            .setDuration(reducedMotion ? Motion.REDUCED_MS : 160).start();
+                });
             }
         }
         if (festive) applyFestiveSkin((TextView) btnInputs, (TextView) btnSettings);
@@ -983,7 +1085,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean openInputsIfAsked(Intent intent) {
         if (intent == null || !ACTION_VIEW_INPUTS.equals(intent.getAction())) return false;
         setIntent(new Intent(Intent.ACTION_MAIN));
-        View anchor = topMenu ? findViewById(R.id.btnSettings) : btnInputs;
+        View anchor = btnInputs;
         if (anchor.getVisibility() != View.VISIBLE) return true;
         if (anchor.isLaidOut()) {
             // Android 9 delivers a new intent to a paused activity with a brief resume and pause around it, and
@@ -1040,6 +1142,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        exitAmbient();   // Home pressed while the interface was faded out
         if (openLauncherSettingsIfAsked(intent)) return;
         if (openLibraryIfAsked(intent)) return;
         if (openInputsIfAsked(intent)) return;
@@ -1088,6 +1191,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             return;
         }
         restartIdleClock();
+        weatherTickNow();
+
         promptsPaused = false;
         if (grid.getAdapter() == null) grid.setAdapter(adapter);   // dropped by onTrimMemory
         switch (tileRefresh.onResume(packagesChangedSinceRebuild())) {
@@ -1124,6 +1229,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (gameDay != null) gameDay.start();
         sky.update();
         wallpaperPlayer.start();
+        if (wallpaperOn) {
+            wallpaperUpdater.maybeRun(wallpaperPlayer::displayedName, () -> {
+                File folder = Config.dir(this);
+                if (folder != null) wallpaperPlayer.refreshCollection(WallpaperRotation.images(new File(folder, "wallpapers")));
+            });
+        }
         handler.postDelayed(minuteTick, MINUTE_MS);
         if (festive && lamp != null) {
             lamp.start();
@@ -1285,12 +1396,100 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private void restartIdleClock() {
         root.removeCallbacks(showIdleClock);
         if (resumed && idleClockMs > 0) root.postDelayed(showIdleClock, idleClockMs);
+        scheduleAmbient();
+    }
+
+    /** Minutes idle on Home before ambient mode; 0 turns it off (SharedPreferences launcher_ui / ambient_minutes). */
+    private static final long AMBIENT_TEST_MS = 0;   // a test can set this to a few thousand ms; 0 uses the setting
+
+    private long ambientMs() {
+        if (AMBIENT_TEST_MS > 0) return AMBIENT_TEST_MS;
+        return getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE).getInt("ambient_minutes", (int) AMBIENT_DEFAULT_MIN) * MINUTE_MS;
+    }
+
+    private void scheduleAmbient() {
+        root.removeCallbacks(enterAmbient);
+        long ms = ambientMs();
+        if (resumed && !ambientMode && ms > 0) root.postDelayed(enterAmbient, ms);
+    }
+
+    private void startAmbient() {
+        if (!resumed || ambientMode) return;
+        // Not over a menu, the library, a prompt or reorder mode: look again a minute later.
+        if (openPopup != null || appLibrary != null || cardPrompt != null || reordering) {
+            root.postDelayed(enterAmbient, MINUTE_MS);
+            return;
+        }
+        ambientMode = true;
+        if (ambientCredit == null) {
+            float dp = density;
+            ambientCredit = new TextView(this);
+            ambientCredit.setTextSize(14);
+            ambientCredit.setTextColor(0xE6FFFFFF);
+            ambientCredit.setShadowLayer(6 * dp, 0, dp, 0xCC000000);
+            ambientCredit.setSingleLine(true);
+            ambientCredit.setEllipsize(TextUtils.TruncateAt.END);
+            ambientCredit.setMaxWidth(Math.round(760 * dp));
+            ambientCredit.setFocusable(false);
+            ambientCredit.setAlpha(0f);
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM | Gravity.START);
+            lp.leftMargin = Math.round(56 * dp);
+            lp.bottomMargin = Math.round(40 * dp);
+            root.addView(ambientCredit, lp);
+        }
+        updateAmbientCredit();
+        grid.animate().alpha(0f).setDuration(700).start();
+        glass.animate().alpha(0f).setDuration(500).start();   // the focus highlight would outline an invisible tile
+        findViewById(R.id.topButtons).animate().alpha(0f).setDuration(700).start();
+        drawerFrost.animate().alpha(0f).setDuration(700).start();
+        ambientCredit.animate().alpha(1f).setDuration(900).start();
+        root.postDelayed(driftClock, MINUTE_MS);
+    }
+
+    private void updateAmbientCredit() {
+        if (ambientCredit == null || !ambientMode) return;
+        String credit = wallpaperPlayer.credit();
+        ambientCredit.setText(credit == null ? "" : credit);
+    }
+
+    /** The clock panel shifts a few pixels each minute, so a static panel does not sit on the same pixels for hours. */
+    private void driftClockPanel() {
+        if (!ambientMode) return;
+        Random r = new Random();
+        float dx = r.nextInt(Math.round(28 * density)), dy = r.nextInt(Math.round(20 * density));
+        findViewById(R.id.leftBlock).animate().translationX(dx).translationY(dy).setDuration(3000).start();
+        weatherPanel.animate().translationX(dx).translationY(dy).setDuration(3000).start();
+        root.postDelayed(driftClock, MINUTE_MS);
+    }
+
+    private void exitAmbient() {
+        if (!ambientMode) return;
+        ambientMode = false;
+        root.removeCallbacks(driftClock);
+        grid.animate().cancel();
+        findViewById(R.id.topButtons).animate().cancel();
+        grid.setAlpha(1f);
+        findViewById(R.id.topButtons).setAlpha(1f);
+        glass.animate().cancel();
+        View focusedNow = getCurrentFocus();
+        if (focusedNow != null && focusedNow.getId() == R.id.card) glass.animate().alpha(1f).setDuration(300).start();
+        findViewById(R.id.leftBlock).animate().translationX(0f).translationY(0f).setDuration(300).start();
+        weatherPanel.animate().translationX(0f).translationY(0f).setDuration(300).start();
+        drawerFrost.animate().cancel();
+        drawerFrost.setProgress(grid.computeVerticalScrollOffset() / (140f * density));
+        if (ambientCredit != null) ambientCredit.animate().alpha(0f).setDuration(300).start();
+        ambientSwallowUntil = SystemClock.uptimeMillis() + 500;   // the key that woke it must not also press a tile
+        scheduleAmbient();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         resumed = false;
+        root.removeCallbacks(enterAmbient);
+        root.removeCallbacks(weatherTick);
+        if (ambientMode) exitAmbient();
         // No UP reaches a paused Home, so a vendor-key hold it saw go down would still open its app later.
         // Only Home's own share is dropped: a key service that saw the same DOWN keeps its hold.
         RemoteKeys.release(this);
@@ -1410,6 +1609,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      */
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        if (ambientMode) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) exitAmbient();
+            return true;
+        }
+        if (SystemClock.uptimeMillis() < ambientSwallowUntil && event.getAction() == KeyEvent.ACTION_UP) return true;
         // Vendor keys (TCL Netflix button, 4062) never reach the key services, only the focused window, so their
         // "hold:" entries run here too or nowhere. Only while resumed: onPause releases Home's holds, and a DOWN
         // taken after that would arm one nothing releases.
@@ -1505,6 +1709,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         orderAtStart = adapter.movableKeys();
         glass.setAccent(REORDER_ACCENT);
         btnReorder.setActivated(true);
+        updateReorderCue();
         return true;
     }
 
@@ -1613,6 +1818,26 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (pos >= adapter.movableCount()) return;   // the "Default home" tile stays put
         movingKey = adapter.keyAt(pos);
         dimOthers();
+        startCueFollow();
+    }
+
+    private boolean cueFollowing;
+    private final Runnable cueFollow = new Runnable() {
+        @Override
+        public void run() {
+            if (!reordering || movingKey == null) {
+                cueFollowing = false;
+                return;
+            }
+            updateReorderCue();   // the tile slides between dock and grid, and scales with focus: track it frame by frame
+            grid.postOnAnimation(this);
+        }
+    };
+
+    private void startCueFollow() {
+        if (cueFollowing) return;
+        cueFollowing = true;
+        grid.postOnAnimation(cueFollow);
     }
 
     /** Puts the carried tile down where it is; the mode stays on. */
@@ -1627,6 +1852,35 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             View item = grid.getChildAt(i);
             item.setAlpha(tileAlpha(grid.getChildAdapterPosition(item)));
         }
+        updateReorderCue();
+    }
+
+    /** Banner text for the current reorder step, and chevrons around the carried tile for the ways it can move. */
+    private void updateReorderCue() {
+        if (reorderCue == null) return;
+        if (!reordering || dockEditing) {
+            reorderCue.hide();
+            return;
+        }
+        reorderCue.show(getString(movingKey == null ? R.string.reorder_cue_idle : R.string.reorder_cue_carry));
+        int from = movingKey == null ? -1 : adapter.positionOf(movingKey);
+        RecyclerView.ViewHolder holder = from < 0 ? null : grid.findViewHolderForAdapterPosition(from);
+        if (holder == null) {
+            reorderCue.clearTarget();
+            return;
+        }
+        int n = adapter.movableCount();
+        boolean horizontalBack = rtlAppGrid ? from + 1 < n : from > 0;
+        boolean horizontalFwd = rtlAppGrid ? from > 0 : from + 1 < n;
+        boolean canUp = !singleRow && from - COLUMNS >= 0;
+        boolean canDown = !singleRow && (from + COLUMNS < n || from / COLUMNS < (n - 1) / COLUMNS);
+        View tile = holder.itemView;
+        int[] t = new int[2], r = new int[2];
+        tile.getLocationInWindow(t);
+        root.getLocationInWindow(r);
+        float w = tile.getWidth() * tile.getScaleX(), h = tile.getHeight() * tile.getScaleY();
+        float x = t[0] - r[0], y = t[1] - r[1];   // getLocationInWindow already reflects the tile's scale and move animation
+        reorderCue.setTarget(new android.graphics.RectF(x, y, x + w, y + h), horizontalBack, canUp, horizontalFwd, canDown);
     }
 
     /** A tile's alpha: dim unless it is the carried one, or, in edit-dock mode, a dock tile other than the chosen place. */
@@ -1649,6 +1903,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         adapter.setReordering(false);
         glass.setAccent(festive ? festival.accentColor() : 0);
         btnReorder.setActivated(false);
+        updateReorderCue();
         List<String> keys = adapter.movableKeys();
         List<String> before = orderAtStart;
         orderAtStart = null;
@@ -1744,6 +1999,16 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     @SuppressWarnings("deprecation")
     public void onBackPressed() {
+        // In the app drawer (below the dock), Back returns to the dock tile above the focused one.
+        int focusedPos = focusedTilePosition();
+        if (!singleRow && focusedPos >= COLUMNS) {
+            focusTile(focusedPos % COLUMNS);   // from the drawer: up to the dock
+            return;
+        }
+        if (focusedPos != 0 && adapter.movableCount() > 0) {
+            focusTile(0);   // from the dock or the top bar: to the first tile
+            return;
+        }
         // Home screen: Back goes nowhere, unless back_opens_clock is on.
         if (backOpensClock) startActivity(new Intent(this, ClockActivity.class));
     }
@@ -2749,8 +3014,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             greeting.setText(festiveGreeting);
             greeting.setTextColor(liftTowardsWhite(festival.accentColor(), 0.25f));
         } else {
-            greeting.setText(greetingName.isEmpty() ? getString(res)
-                    : getString(R.string.greeting_with_name, getString(res), greetingName));
+            // The line above the clock is the short date ("Dim. 1 nov."), in place of the greeting and the long date.
+            String style = getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE).getString("date_style", "short");
+            String pattern = "long".equals(style) ? "EEEE d MMMM"
+                    : "numeric".equals(style) ? android.text.format.DateFormat.getBestDateTimePattern(locale, "dMM") : "EEE d MMM";
+            greeting.setText(new java.text.SimpleDateFormat(pattern, locale).format(new java.util.Date()));
             greeting.setTextColor(greetingColor);
         }
         if (shamsi) shamsiDate.setText(Shamsi.today(getResources()));
@@ -3031,6 +3299,70 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean libraryFromVpnPill;
 
     /** Turns a labelled top pill into the round TopButtonIcon shape: no text, the icon centred by even padding. */
+    /** Fetches the weather when it is due and again every 30 minutes while Home is in front. */
+    private void weatherTickNow() {
+        root.removeCallbacks(weatherTick);
+        if (!resumed) return;
+        Weather.refreshIfDue(this, () -> weatherPanel.refresh());
+        weatherPanel.refresh();
+        root.postDelayed(weatherTick, 30 * MINUTE_MS);
+    }
+
+    /** One frame of a wallpaper crossfade: repaint the glass surfaces (the dock band is drawn by the grid). */
+    private void onFrostFrame() {
+        grid.invalidate();
+        View left = findViewById(R.id.leftBlock);
+        if (left != null) left.invalidate();
+        if (weatherPanel != null) weatherPanel.invalidate();
+        if (drawerFrost != null) drawerFrost.invalidate();
+    }
+
+    /** A new wallpaper's blurred copy is ready: repaint every frosted surface. */
+    private void onFrostChanged() {
+        root.post(this::updateAmbientCredit);
+        grid.invalidateItemDecorations();
+        View left = findViewById(R.id.leftBlock);
+        if (left != null) left.invalidate();
+        if (drawerFrost != null) drawerFrost.invalidate();
+        if (weatherPanel != null) weatherPanel.invalidate();
+    }
+
+    /** The pill whose name is showing because its menu is open. */
+    private TextView labelledPill;
+
+    /** An icon-only pill shows its name while its menu is open, and shrinks back to the icon when it closes. */
+    private void setPillLabel(TextView pill, boolean on) {
+        CharSequence label = pill.getContentDescription();
+        if (TextUtils.isEmpty(label)) return;
+        int pad = Math.round((on ? 16 : 10) * density);
+        pill.setText(on ? label : null);
+        pill.setPaddingRelative(pad, 0, pad, 0);
+        pill.setCompoundDrawablePadding(on ? Math.round(8 * density) : 0);
+        pill.getLayoutParams().width = on ? ViewGroup.LayoutParams.WRAP_CONTENT : Math.round(42 * density);
+        pill.requestLayout();
+    }
+
+    private void collapsePillLabel() {
+        if (labelledPill != null) setPillLabel(labelledPill, false);
+        labelledPill = null;
+    }
+
+    /** Unused since the names moved to the menus; kept for a theme that wants hover labels. */
+    private void addHoverLabel(TextView pill) {
+        CharSequence label = pill.getContentDescription();
+        if (TextUtils.isEmpty(label)) return;
+        View.OnFocusChangeListener previous = pill.getOnFocusChangeListener();
+        pill.setOnFocusChangeListener((v, focused) -> {
+            if (previous != null) previous.onFocusChange(v, focused);
+            int pad = Math.round((focused ? 16 : 10) * density);
+            pill.setText(focused ? label : null);
+            pill.setPaddingRelative(pad, 0, pad, 0);
+            pill.setCompoundDrawablePadding(focused ? Math.round(8 * density) : 0);
+            pill.getLayoutParams().width = focused ? ViewGroup.LayoutParams.WRAP_CONTENT : Math.round(42 * density);
+            pill.requestLayout();
+        });
+    }
+
     private void makeIconOnly(TextView pill) {
         pill.setContentDescription(pill.getText());
         pill.setText(null);
@@ -3390,8 +3722,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // top_menu: the pill is gone, so the list hangs under the gear, growing inward from the right.
         // Read the switch, not the pill: show_inputs_pill=false hides the pill too, and there the list
         // keeps its usual place.
-        boolean underGear = topMenu;
-        View anchor = findViewById(underGear ? R.id.btnSettings : R.id.btnInputs);
+        boolean underGear = false;
+        View anchor = findViewById(R.id.btnInputs);
         View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
 
@@ -3599,6 +3931,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         popup.setElevation(0f);
         popup.setOnDismissListener(() -> {
             if (openPopup == popup) openPopup = null;
+            collapsePillLabel();
         });
         openPopup = popup;
         return popup;
@@ -3606,6 +3939,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     /** Drop in: fade and unfold from the top edge, hanging under the anchor pill. */
     private void dropIn(PopupWindow popup, View panel, View anchor, int gravity) {
+        collapsePillLabel();
+        if ((anchor == btnInputs || anchor.getId() == R.id.btnSettings) && iconOnlyButtons) {
+            labelledPill = (TextView) anchor;
+            setPillLabel(labelledPill, true);
+        }
         panel.setAlpha(0f);
         panel.setPivotY(0f);
         panel.setScaleY(0.92f);
@@ -3668,7 +4006,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             status.setText(network);
             status.setVisibility(View.VISIBLE);
         }
+        if (StockHome.find(this) != null) {
+            addInputRow(rows, popup, R.drawable.ic_menu_home, getString(R.string.stock_home_go), -1, () -> StockHome.open(this));
+        }
         addInputRow(rows, popup, R.drawable.ic_swap_vert, getString(R.string.reorder), -1, this::toggleReorder);
+        addInputRow(rows, popup, R.drawable.ic_home_gear, getString(R.string.customize_home), -1,
+                () -> startActivity(new Intent(this, HomeCustomizeActivity.class)));
         if (launcherSettingsButton) {
             addInputRow(rows, popup, R.drawable.ic_home_settings_pill, getString(R.string.launcher_settings), -1,
                     () -> startActivityForResult(new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST));

@@ -1,0 +1,3 @@
+# Wallpaper photos are not committed (about 29 MB, CC BY-SA / CC BY / public domain, credited in CREDITS.md and captions.txt).
+# The launcher downloads and rotates its own set; see launcher/app/src/main/java/com/gathin/tvhome/WallpaperUpdater.java.
+*.jpg

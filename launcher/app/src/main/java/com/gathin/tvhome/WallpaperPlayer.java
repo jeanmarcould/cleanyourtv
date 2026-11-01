@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /** Displays and rotates a theme's local wallpaper images while Home is visible. */
-final class WallpaperPlayer {
+final class WallpaperPlayer implements Frost.Source {
     private final FrameLayout root;
     private final ImageView image;
     private final int backgroundColor;
@@ -48,6 +48,65 @@ final class WallpaperPlayer {
     private final int dimColor;
     /** The picture on screen, released once the next one has been drawn. */
     private Bitmap current;
+    /** A tiny blurred copy of the picture on screen, for the frosted glass (Frost). Made at decode time. */
+    private volatile Bitmap blurred;
+    /** During a crossfade: the picture fading out (its blurred copy) and how far the new one has faded in. */
+    private volatile Bitmap previousBlurred;
+    private volatile float blend = 1f;
+    private final ImageView fade;
+    /** Crossfade length in ms; 0 swaps the picture at once. */
+    private final int fadeMs;
+    private android.animation.ValueAnimator fader;
+    private Runnable frostFrameListener;
+    private final java.util.Map<Bitmap, Bitmap> blurs = java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
+    private Runnable frostListener;
+
+    @Override
+    public Bitmap blurred() {
+        return blurred;
+    }
+
+    @Override
+    public Bitmap previous() {
+        return previousBlurred;
+    }
+
+    @Override
+    public float blend() {
+        return blend;
+    }
+
+    void setFrostFrameListener(Runnable listener) {
+        frostFrameListener = listener;
+    }
+
+    /** The topmost wallpaper layer, so other full-screen layers can sit just above it. */
+    View topLayer() {
+        return fade.getParent() != null ? fade : image;
+    }
+
+    /** Name of the picture on screen ("" before the first one). */
+    String displayedName() {
+        return displayed;
+    }
+
+    /** The photo credit for the picture on screen (captions.txt), or null. */
+    String credit() {
+        File folder = files.isEmpty() ? null : files.get(0).getParentFile();
+        return folder == null ? null : WallpaperCaptions.read(folder).get(displayed);
+    }
+
+    /** The collection changed on disk (the wallpaper updater added and dropped pictures): rotate through the new one. */
+    void refreshCollection(List<File> fresh) {
+        if (fresh.isEmpty()) return;
+        files.clear();
+        files.addAll(fresh);
+        preferences.edit().putString("collection", collectionKey(files)).apply();
+    }
+
+    void setFrostListener(Runnable listener) {
+        frostListener = listener;
+    }
     private boolean active;
     private boolean closed;
     private boolean loading;
@@ -66,7 +125,10 @@ final class WallpaperPlayer {
         this.root = root;
         backgroundColor = config.backgroundColor;
         files = new ArrayList<>(config.wallpapers);
-        interval = config.wallpaperRotationMinutes * 60_000L;
+        SharedPreferences ui = context.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE);
+        int chosenMinutes = ui.getInt("wallpaper_minutes", 0);   // Home settings > Wallpapers; 0 follows the theme
+        interval = (chosenMinutes > 0 ? chosenMinutes : config.wallpaperRotationMinutes) * 60_000L;
+        fadeMs = "none".equals(ui.getString("wallpaper_fade", "fade")) ? 0 : ui.getInt("wallpaper_fade_ms", 1600);
         bitmapConfig = config.wallpaperTrueColor ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
         // The dim is painted into the picture (decode), so no full-screen shade layer is drawn on every frame.
         dimColor = config.wallpaperDim > 0 ? (config.wallpaperDim * 255 / 100) << 24 : 0;
@@ -86,6 +148,10 @@ final class WallpaperPlayer {
         width = metrics.widthPixels;
         height = metrics.heightPixels;
         image = new ImageView(context);
+        fade = new ImageView(context);
+        fade.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        fade.setVisibility(View.GONE);
+        fade.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         image.setScaleType(ImageView.ScaleType.CENTER_CROP);
         image.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         names = config.wallpaperCaptions && config.wallpaperEnabled && !files.isEmpty()
@@ -93,6 +159,8 @@ final class WallpaperPlayer {
         caption = names.isEmpty() ? null : makeCaption(context, root);
         if (config.wallpaperEnabled && !files.isEmpty()) {
             root.addView(image, 0, new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            root.addView(fade, 1, new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             showFirst();
         }
@@ -265,8 +333,60 @@ final class WallpaperPlayer {
         current = bitmap;
         // The wallpaper covers the whole root; avoid drawing the fallback colour under it.
         root.setBackground(null);
-        image.setImageBitmap(bitmap);
-        if (old != null && old != bitmap) image.postDelayed(old::recycle, 500);
+        Bitmap blur = blurs.remove(bitmap);
+        if (fader != null) fader.end();   // a fade still running when the next picture arrives: finish it first
+        if (old == null || old == bitmap || !active || fadeMs == 0) {
+            image.setImageBitmap(bitmap);
+            if (blur != null) {
+                blurred = blur;
+                if (frostListener != null) frostListener.run();
+            }
+            if (old != null && old != bitmap) image.postDelayed(old::recycle, 500);
+            return;
+        }
+        // Crossfade: the new picture fades in over the old one, and the frosted glass fades with it.
+        fade.setImageBitmap(bitmap);
+        fade.setAlpha(0f);
+        fade.setVisibility(View.VISIBLE);
+        previousBlurred = blurred;
+        if (blur != null) blurred = blur;
+        blend = 0f;
+        fader = android.animation.ValueAnimator.ofFloat(0f, 1f);
+        fader.setDuration(fadeMs);
+        fader.addUpdateListener(a -> {
+            float v = (float) a.getAnimatedValue();
+            fade.setAlpha(v);
+            blend = v;
+            if (frostFrameListener != null) frostFrameListener.run();
+        });
+        fader.addListener(new android.animation.AnimatorListenerAdapter() {
+            private boolean done;
+
+            private void finish() {
+                if (done) return;
+                done = true;
+                image.setImageBitmap(bitmap);
+                fade.setVisibility(View.GONE);
+                fade.setImageDrawable(null);
+                previousBlurred = null;
+                blend = 1f;
+                fader = null;
+                if (frostListener != null) frostListener.run();
+                if (old != bitmap) image.postDelayed(old::recycle, 500);
+            }
+
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                finish();
+            }
+
+            @Override
+            public void onAnimationCancel(android.animation.Animator animation) {
+                finish();
+            }
+        });
+        if (frostListener != null) frostListener.run();
+        fader.start();
     }
 
     private Bitmap decode(File file) {
@@ -293,9 +413,19 @@ final class WallpaperPlayer {
             if (dimColor != 0) new Canvas(decoded).drawColor(dimColor);
             // One copy in GPU memory instead of a software bitmap plus its texture; the decode stays off the UI
             // thread for rotations, and Home's return no longer uploads 4-8 MB to the GPU.
+            Bitmap blur = null;
+            try {
+                blur = Frost.blur(decoded);
+            } catch (RuntimeException | OutOfMemoryError noFrost) {
+                Log.w("TvHome.Wallpaper", "No frosted copy for " + file.getName());
+            }
             Bitmap gpu = decoded.copy(Bitmap.Config.HARDWARE, false);
-            if (gpu == null) return decoded;
+            if (gpu == null) {
+                if (blur != null) blurs.put(decoded, blur);
+                return decoded;
+            }
             decoded.recycle();
+            if (blur != null) blurs.put(gpu, blur);
             return gpu;
         } catch (Exception | OutOfMemoryError failure) {
             return null;

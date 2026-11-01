@@ -1,0 +1,3 @@
+# CHiQ AI PONT (Changhong DVB64), Android 14. Batch 1: privacy-sandbox modules
+com.android.ondevicepersonalization.services
+com.android.federatedcompute.services

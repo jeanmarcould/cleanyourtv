@@ -278,6 +278,14 @@ public class HomeKeyService extends AccessibilityService {
         }
         if (RemoteKeys.handle(this, event, inFront(appKeys, frontAppKeys, event.getKeyCode()),
                 holdAppKeys.get(event.getKeyCode()))) return true;
+        if (stockIsDefault() && event.getKeyCode() == KeyEvent.KEYCODE_HOME) return false;
+        // Over a screensaver the system has to see Home to wake it; this launcher opens a moment after it has.
+        if (dreamShowing && event.getKeyCode() == KeyEvent.KEYCODE_HOME) {
+            if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
+                handler.postDelayed(this::openHome, HOME_KEY_DELAY_MS * 2);
+            }
+            return false;
+        }
         // home_long_press_home: Android never sees the Home key, so a held press cannot turn into ALL_APPS.
         if (homeLongPressHome && event.getKeyCode() == KeyEvent.KEYCODE_HOME) {
             if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) openHome();
@@ -303,6 +311,15 @@ public class HomeKeyService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return;
+        if (event.getPackageName() != null) {
+            String pkg = event.getPackageName().toString();
+            // Power-on window (until the first key): the Google TV home coming up is sent back to this launcher.
+            if (pkg.equals("com.google.android.apps.tv.launcherx") && stillArmed(SystemClock.elapsedRealtime(), powerOnUntil)) {
+                openHome();   // does nothing while Google TV is the chosen home
+            }
+            String cls = event.getClassName() == null ? "" : event.getClassName().toString().toLowerCase(java.util.Locale.ROOT);
+            dreamShowing = pkg.equals("com.google.android.apps.tv.dreamx") || cls.contains("dream");
+        }
         // app_keys "front:" entries: only activities count, so a toast or the volume bar doesn't change the app in front.
         if ((!frontAppKeys.isEmpty() || !frontAppScancodes.isEmpty())
                 && event.getPackageName() != null && event.getClassName() != null) {
@@ -331,7 +348,9 @@ public class HomeKeyService extends AccessibilityService {
     private void armPowerOnHome() {
         if (SystemClock.elapsedRealtime() < BOOT_WINDOW_MS) {
             powerOnUntil = BOOT_WINDOW_MS;
-            if (powerOnAlways) handler.postDelayed(this::homeAtPowerOn, POWER_ON_ALWAYS_DELAY_MS);
+            // This helper binds some time after boot: if the Google TV home (or Live TV) is already on screen by
+            // then, no window change will announce it, so go Home once now, unless a key was pressed first.
+            handler.postDelayed(this::homeAtPowerOn, POWER_ON_ALWAYS_DELAY_MS);
         }
         if (screenOnReceiver != null) return;
         screenOnReceiver = new BroadcastReceiver() {
@@ -397,6 +416,9 @@ public class HomeKeyService extends AccessibilityService {
     /** Lets the system see the key, so a long press still does what the firmware gives it. */
     private static final long HOME_KEY_DELAY_MS = 250;
     private final Handler handler = new Handler(Looper.getMainLooper());
+    /** A screensaver (Google TV's ambient mode, the Clock dream) is in front. Android wakes it on a key it sees, but
+     *  not on one this service consumes, so Home pressed there did nothing until another key woke it. */
+    private boolean dreamShowing;
 
     /** stock_home_redirect on the Home key: when the stock home is already on screen (it came up at boot, before
      *  Android bound this service), Home brings it up again with no window change, so the redirect above never
@@ -414,7 +436,13 @@ public class HomeKeyService extends AccessibilityService {
         return upTime - downTime < longPressTimeout;
     }
 
+    /** Home settings > Default home launcher: with Google TV chosen, this service leaves the Home key to the system. */
+    private boolean stockIsDefault() {
+        return "stock".equals(getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE).getString("home_target", "this"));
+    }
+
     private void openHome() {
+        if (stockIsDefault()) return;
         Intent open = stockHomeStays() ? new Intent(this, MainActivity.class)
                 : new Intent(Intent.ACTION_MAIN).setPackage(getPackageName());
         startActivity(open.addCategory(Intent.CATEGORY_HOME)

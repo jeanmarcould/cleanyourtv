@@ -66,7 +66,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     static final class Entry {
-        static final int APP = 0, HOME_SETTINGS = 1, CARD = 2, EMPTY = 3;
+        static final int APP = 0, HOME_SETTINGS = 1, CARD = 2, EMPTY = 3, STOCK_HOME = 4;
 
         final int kind;
         final String label;
@@ -96,6 +96,9 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             this.ambient = accent;
         }
     }
+
+    /** The Google TV tile at the end of the list; off because the gear menu has "Go to Google TV Home". */
+    private static final boolean SHOW_STOCK_TILE = false;
 
     static final float FOCUS_SCALE = 1.10f;
     /** Design size of a tile (dp); tiles shrink from here when the columns don't fit, see tileWidthPx. */
@@ -301,6 +304,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (!(uniformTiles && card == null)) {
                 banner = bundledBanner(appBanners.get(pkg));
                 if (banner == null) banner = iconTiles.contains(pkg) ? iconBanner(ri.loadIcon(pm)) : loadBanner(pm, ri);
+                // Live TV x: its banner's black field is 160 of 180 high, leaving a strip under the logo.
+                if (banner != null && "com.cltv.hybrid".equals(pkg)) banner = new ShiftedBanner(banner, 10f / 180f);
             }
             // The icon is only drawn (and sampled for the glow) when there is no banner, so a tile with a
             // banner skips loading and decoding it.
@@ -326,6 +331,12 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (ca != cb) return ca ? -1 : 1;
             return a.label.compareToIgnoreCase(b.label);
         });
+        // Always last: a tile that opens the TV's own Google TV home directly.
+        ComponentName stock = StockHome.find(ctx);
+        if (SHOW_STOCK_TILE && stock != null) {
+            Drawable stockIcon = ctx.getDrawable(R.drawable.ic_google_tv);
+            fresh.add(new Entry(Entry.STOCK_HOME, ctx.getString(R.string.stock_home), stock, null, stockIcon, null, 0));
+        }
         // Retain the optional Default-home tile until dependent tile-ordering work is merged.
         if (showHomeSettings
                 && pm.resolveActivity(new Intent(Settings.ACTION_HOME_SETTINGS), 0) != null) {
@@ -528,6 +539,10 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /** Opens the tile's activity by explicit component, with no extras: a card can name nothing else. */
     @SuppressWarnings("deprecation")
     private void launch(Entry e) {
+        if (e.kind == Entry.STOCK_HOME) {
+            StockHome.open(ctx);
+            return;
+        }
         if (e.kind == Entry.HOME_SETTINGS) {
             ctx.startActivity(new Intent(ctx, HomeSettingsActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -611,7 +626,8 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     /** Tiles that can be moved: everything but the "Default home" tile, which always stays last. */
     int movableCount() {
         int n = items.size();
-        return n > 0 && items.get(n - 1).kind == Entry.HOME_SETTINGS ? n - 1 : n;
+        while (n > 0 && (items.get(n - 1).kind == Entry.HOME_SETTINGS || items.get(n - 1).kind == Entry.STOCK_HOME)) n--;
+        return n;
     }
 
     /** Keys of the movable tiles in their current order, for Order (empty dock slots are not tiles). */

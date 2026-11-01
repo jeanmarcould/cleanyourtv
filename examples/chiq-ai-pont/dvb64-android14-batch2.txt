@@ -1,0 +1,4 @@
+# Batch 2: unused interactive-TV middleware and game optimiser
+org.obs.mhegservice
+tv.mopa.ginga
+com.gdch.gameoptimiser
