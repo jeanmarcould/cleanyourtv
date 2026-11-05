@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -78,6 +79,28 @@ public class WallpaperRotationTest {
         }
         // Unknown order keeps the historical shuffle rather than failing or blanking.
         assertNotEquals("a.jpg", WallpaperRotation.pick(images, "a.jpg", "random", random).getName());
+    }
+
+    @Test
+    public void cycleDeckVisitsEveryPictureOnceAndSkipsTheCurrentOne() {
+        List<File> images = Arrays.asList(new File("a.jpg"), new File("b.jpg"), new File("c.jpg"));
+        List<String> deck = WallpaperRotation.cycleDeck(images, "a.jpg", new Random(1));
+        assertEquals(2, deck.size());
+        assertFalse(deck.contains("a.jpg"));
+        assertTrue(deck.containsAll(Arrays.asList("b.jpg", "c.jpg")));
+        assertEquals(3, WallpaperRotation.cycleDeck(images, "", new Random(1)).size());
+        // Drawing a round takes each picture once and then runs out; names no longer in the
+        // collection are skipped.
+        List<String> round = new ArrayList<>(deck);
+        java.util.Set<String> drawn = new java.util.HashSet<>();
+        File image;
+        while ((image = WallpaperRotation.draw(images, round)) != null) assertTrue(drawn.add(image.getName()));
+        assertEquals(2, drawn.size());
+        assertNull(WallpaperRotation.draw(images, round));
+        assertNull(WallpaperRotation.draw(images, new ArrayList<>(Arrays.asList("gone.jpg"))));
+        assertTrue(WallpaperRotation.validOrder(WallpaperRotation.ORDER_CYCLE));
+        assertFalse(WallpaperRotation.validOrder("random"));
+        assertTrue(WallpaperRotation.cycleDeck(Collections.singletonList(new File("only.jpg")), "only.jpg", new Random(1)).isEmpty());
     }
 
     @Test

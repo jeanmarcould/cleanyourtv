@@ -16,23 +16,29 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.io.File;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * The wallpaper collection as a grid of tiles, newest first, with no names. OK on a tile opens a large preview with
- * the photo's name and credit and two choices: delete it, or go back to the list. Deleting makes Home rescan the
- * folder when it comes back.
+ * The wallpaper collection as a grid of tiles, newest first, each with the date it arrived. OK on a tile opens a
+ * large preview with the photo's name, credit and date and two choices: delete it, or go back to the list. Deleting
+ * makes Home rescan the folder when it comes back.
  */
 public class WallpaperManagerActivity extends Activity {
     private static final int PER_ROW = 5;
+    /** The updater names a download wm_<epoch-ms>_<n>.jpg; that timestamp is when the photo arrived. */
+    private static final Pattern DOWNLOADED = Pattern.compile("^wm_(\\d+)_\\d+\\.(?:jpe?g|png|webp)$", Pattern.CASE_INSENSITIVE);
 
     private final ExecutorService loader = Executors.newFixedThreadPool(2);
     private final Handler main = new Handler(Looper.getMainLooper());
@@ -107,6 +113,11 @@ public class WallpaperManagerActivity extends Activity {
                 grid.addView(row, rp);
             }
             File f = pictures.get(i);
+            LinearLayout cell = new LinearLayout(this);
+            cell.setOrientation(LinearLayout.VERTICAL);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(tileW, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.rightMargin = (i % PER_ROW == PER_ROW - 1) ? 0 : gap;
+            row.addView(cell, lp);
             ImageView tile = new ImageView(this);
             tile.setScaleType(ImageView.ScaleType.CENTER_CROP);
             tile.setBackgroundResource(R.drawable.settings_choice_bg);
@@ -115,9 +126,16 @@ public class WallpaperManagerActivity extends Activity {
             tile.setCropToPadding(true);   // the picture is cut to the tile, not drawn over its border
             tile.setFocusable(true);
             tile.setClickable(true);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(tileW, tileH + 2 * pad);
-            lp.rightMargin = (i % PER_ROW == PER_ROW - 1) ? 0 : gap;
-            row.addView(tile, lp);
+            cell.addView(tile, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, tileH + 2 * pad));
+            TextView date = new TextView(this);
+            date.setText(dateLabel(f));
+            date.setTextColor(0xFF9AA4B2);
+            date.setTextSize(12);
+            date.setGravity(Gravity.CENTER);
+            date.setSingleLine(true);
+            date.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            date.setPadding(0, Math.round(4 * density), 0, 0);
+            cell.addView(date);
             final int index = i;
             tile.setOnClickListener(v -> open(index));
             loader.execute(() -> {
@@ -187,7 +205,8 @@ public class WallpaperManagerActivity extends Activity {
         shownIndex = index;
         shown = pictures.get(index);
         String credit = credits.get(shown.getName());
-        detailName.setText((credit == null ? shown.getName() : credit) + "\n" + shown.getName());
+        detailName.setText((credit == null ? shown.getName() : credit) + "\n" + shown.getName()
+                + "\n" + dateLabel(shown));
         preview.setImageDrawable(null);
         // The grid behind must not take focus while the preview is up: that is what made Delete unreachable.
         listColumn.setVisibility(View.INVISIBLE);
@@ -229,6 +248,23 @@ public class WallpaperManagerActivity extends Activity {
     public void onBackPressed() {
         if (detail.getVisibility() == View.VISIBLE) closeDetail();
         else super.onBackPressed();
+    }
+
+    /** When the picture arrived: the updater's timestamp in its name, else the file date (a theme push). */
+    static long downloadedAt(File f) {
+        Matcher m = DOWNLOADED.matcher(f.getName());
+        if (m.matches()) {
+            try {
+                return Long.parseLong(m.group(1));
+            } catch (NumberFormatException ignored) {
+                // a truncated name: fall through to the file date
+            }
+        }
+        return f.lastModified();
+    }
+
+    private static String dateLabel(File f) {
+        return DateFormat.getDateInstance(DateFormat.MEDIUM).format(new Date(downloadedAt(f)));
     }
 
     private static Bitmap decode(File f, int width) {

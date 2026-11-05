@@ -222,7 +222,7 @@ final class WallpaperUpdater {
     }
 
     static void writeCredits(File dir, Map<String, String> credits) throws IOException {
-        StringBuilder out = new StringBuilder("# Photo credits: file<TAB>title - author (written by the wallpaper updater)\n");
+        StringBuilder out = new StringBuilder("# Photo credits: file<TAB>location - author (written by the wallpaper updater)\n");
         for (Map.Entry<String, String> e : credits.entrySet()) out.append(e.getKey()).append('\t').append(e.getValue()).append('\n');
         // A new file renamed over the old one: a captions.txt pushed over ADB belongs to another user and cannot be
         // overwritten in place, but the folder is ours, so it can be replaced.
@@ -232,11 +232,35 @@ final class WallpaperUpdater {
         Files.move(temp.toPath(), target.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
     }
 
-    /** "Title - Author", cut to what WallpaperCaptions keeps. */
+    /** "Location - Author", cut to what WallpaperCaptions keeps. */
     static String credit(String fileTitle, String author) {
-        String t = fileTitle.replaceFirst("^File:", "").replaceFirst("\\.[A-Za-z]+$", "").replace('_', ' ').trim();
-        String text = author.isEmpty() ? t : t + " · " + author;
+        String location = location(fileTitle);
+        // Some Commons titles already end in the photographer's name ("…, CA, US - Diliff"); don't repeat it.
+        String text = author.isEmpty() || location.toLowerCase(Locale.ROOT).endsWith(" - " + author.toLowerCase(Locale.ROOT))
+                ? location : location + " - " + author;
         return text.length() > WallpaperCaptions.MAX_LENGTH ? text.substring(0, WallpaperCaptions.MAX_LENGTH - 1).trim() + "…" : text;
+    }
+
+    /**
+     * The file title as a place. Wikimedia titles put the location first and then a capture date and the
+     * photographer's archive code ("Gullfoss, Suðurland, Islandia, 2014-08-16, DD 123"), which read as noise in
+     * ambient mode; they are dropped so the caption reads "Gullfoss, Suðurland, Islandia - Diego Delso".
+     */
+    static String location(String fileTitle) {
+        String t = fileTitle.replaceFirst("^File:", "").replaceFirst("\\.[A-Za-z]+$", "")
+                .replace('_', ' ').trim();
+        t = t.replaceFirst("^(?:19|20)\\d{6}[\\s-]+", "");                      // 20100911 Kotani…
+        t = t.replaceFirst("^\\d{4}-\\d{2}-\\d{2}\\s*[-–]?\\s*", "");              // 2014-09-29 - Reichsbrücke…
+        t = t.replaceFirst("(?i)\\s*,\\s*\\d{4}-\\d{2}-\\d{2}.*$", "");           // , 2014-08-16, DD 123
+        t = t.replaceFirst("(?i)\\s*,?\\s*DD\\s*\\d+.*$", "");                   // , DD 09
+        t = t.replaceFirst("(?i)\\s*--\\s*\\d{4}\\s*--.*$", "");                  // -- 2018 -- 1545-51
+        t = t.replaceFirst("(?i)\\s*[-–,]\\s*\\d{4}\\s*$", "");                   // - 2017
+        t = t.replaceFirst("(?i)\\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s+\\d{4}\\s*$", "");
+        t = t.replaceFirst("(?i)\\s+\\d{4}\\s+года\\s*$", "");                  // 2015 года
+        t = t.replaceFirst("\\s+\\d{4}\\s*$", "");                                // 2014
+        t = t.replaceFirst("\\s+\\d{8}\\s*$", "");                                // 20180209
+        t = t.replaceFirst("\\s{2,}", " ").trim();
+        return t.isEmpty() ? "Unknown" : t;
     }
 
     private static String clean(String html) {

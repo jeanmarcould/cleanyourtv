@@ -13,7 +13,7 @@
   "background_color": "#05070C",
   "wallpaper": true,
   "wallpaper_rotation_minutes": 20,
-  "wallpaper_order": "shuffle",
+  "wallpaper_order": "cycle",
   "wallpaper_captions": false,
   "wallpaper_true_color": true,
   "wallpaper_dim": 10,

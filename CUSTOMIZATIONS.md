@@ -69,6 +69,17 @@ Do not use `am force-stop` on the launcher: it removes its accessibility service
 - Strings `ambient_mode` and `wallpapers_view` added in default, French and Hebrew; the fade-duration strings
   are gone. Both new activities are non-exported.
 - Committed as `3c9ba2cf`, built (622,561 B) and installed on the TV; the three accessibility services rebound.
+- New `wallpaper_order: "cycle"` for rotations: every picture in the collection comes up once per round, in a
+  random order, before any repeat, and the round is kept across Home restarts. `mytv` uses it; `shuffle` still
+  means pure random and `sequential` still walks the filenames.
+- Wallpaper captions now read "Location - Author": `WallpaperUpdater.location()` drops the capture date and the
+  photographer's archive code from the Commons title, and `themes/mytv/wallpapers/captions.txt` was regenerated
+  from its `CREDITS.md`. The wallpaper manager shows each picture's arrival date under its tile (the updater's
+  `wm_<epoch>_NN.jpg` timestamp, else the file date), and in the preview.
+- Built with these, installed over 3.4, and pushed `themes/mytv/config.json` alone, so the 60 downloaded photos
+  stayed; Home was restarted with `tools/theme_restart.py` and its three accessibility services rebound. APK is
+  623,337 B. The 5-minute interval chosen in Home settings > Wallpapers still applies; `cycle` changes only the
+  order. The TV's 60 captions were rewritten in the same pass.
 - Tried to make this launcher the system Home: a priority-3 HOME filter (Android caps third-party priority at 0,
   launcherx is a system app at 2), a fresh `ROLE_HOME` grant and `cmd package set-home-activity`. All left
   `resolve-activity` on launcherx. The manifest change was reverted, the reverted build (622,561 B) reinstalled

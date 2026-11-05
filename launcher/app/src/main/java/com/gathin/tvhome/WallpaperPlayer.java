@@ -102,6 +102,27 @@ final class WallpaperPlayer implements Frost.Source {
         files.clear();
         files.addAll(fresh);
         preferences.edit().putString("collection", collectionKey(files)).apply();
+        if (WallpaperRotation.ORDER_CYCLE.equals(order)) {
+            deck.removeIf(name -> WallpaperRotation.find(files, name) == null);
+            saveDeck();
+        }
+    }
+
+    /** The next picture: sequential, random, or the next one of the cycle's round. */
+    private File pickNext(List<File> playable, String previous) {
+        if (!WallpaperRotation.ORDER_CYCLE.equals(order)) {
+            return WallpaperRotation.pick(playable, previous, order, random);
+        }
+        // A picture that left the collection or this hour's mood group also leaves the round.
+        deck.removeIf(name -> WallpaperRotation.find(playable, name) == null);
+        if (deck.isEmpty()) deck.addAll(WallpaperRotation.cycleDeck(playable, previous, random));
+        File next = WallpaperRotation.draw(playable, deck);
+        saveDeck();
+        return next;
+    }
+
+    private void saveDeck() {
+        preferences.edit().putString("deck", String.join("\n", deck)).apply();
     }
 
     void setFrostListener(Runnable listener) {
@@ -116,6 +137,8 @@ final class WallpaperPlayer implements Frost.Source {
     private final Map<String, String> names;
     /** wallpaper_moods: the collection's groups by time of day; empty rotates through all of it. */
     private final Map<String, Set<String>> moods;
+    /** wallpaper_order cycle: the pictures left in this round, oldest choice first. */
+    private final List<String> deck = new ArrayList<>();
     /** config.xml latitude and longitude for the sun's times, and today's {sunrise, sunset} once worked out. */
     private final String latitude, longitude;
     private LocalDate sunDay;
@@ -143,7 +166,12 @@ final class WallpaperPlayer implements Frost.Source {
         String collection = collectionKey(files);
         if (!collection.equals(preferences.getString("collection", ""))) {
             preferences.edit().putString("collection", collection)
-                    .remove("image").remove("changed").apply();
+                    .remove("image").remove("changed").remove("deck").apply();
+        }
+        if (WallpaperRotation.ORDER_CYCLE.equals(order)) {
+            for (String name : preferences.getString("deck", "").split("\n")) {
+                if (!name.isEmpty() && WallpaperRotation.find(files, name) != null) deck.add(name);
+            }
         }
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         width = metrics.widthPixels;
@@ -176,7 +204,7 @@ final class WallpaperPlayer implements Frost.Source {
         String previous = preferences.getString("image", "");
         List<File> playable = playable();
         File first = WallpaperRotation.find(playable, previous);
-        if (first == null) first = WallpaperRotation.pick(playable, previous, order, random);
+        if (first == null) first = pickNext(playable, previous);
         while (first != null) {
             Bitmap bitmap = decode(first);
             if (bitmap != null) {
@@ -193,7 +221,7 @@ final class WallpaperPlayer implements Frost.Source {
             }
             files.remove(first);   // unreadable or over 4K: try another, or keep the plain colour
             playable = playable();
-            first = WallpaperRotation.pick(playable, previous, order, random);
+            first = pickNext(playable, previous);
         }
     }
 
@@ -242,7 +270,7 @@ final class WallpaperPlayer implements Frost.Source {
         File selected = WallpaperRotation.find(playable, previous);
         long changed = preferences.getLong("changed", 0);
         if (selected == null || WallpaperRotation.due(changed, System.currentTimeMillis(), interval)) {
-            selected = WallpaperRotation.pick(playable, previous, order, random);
+            selected = pickNext(playable, previous);
         }
         if (selected == null || selected.getName().equals(displayed)) return;
         File next = selected;

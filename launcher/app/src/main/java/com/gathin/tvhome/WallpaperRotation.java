@@ -13,9 +13,22 @@ final class WallpaperRotation {
     /** Playback orders persisted in config.json (wallpaper_order). */
     static final String ORDER_SEQUENTIAL = "sequential";
     static final String ORDER_SHUFFLE = "shuffle";
+    /** Every picture once per round, in random order, before any repeat. */
+    static final String ORDER_CYCLE = "cycle";
 
     static boolean validOrder(String order) {
-        return ORDER_SEQUENTIAL.equals(order) || ORDER_SHUFFLE.equals(order);
+        return ORDER_SEQUENTIAL.equals(order) || ORDER_SHUFFLE.equals(order) || ORDER_CYCLE.equals(order);
+    }
+
+    /**
+     * One round of {@link #ORDER_CYCLE}: every picture's name in a random order. The one on screen is left out,
+     * so it ends the previous round and starts the next; a collection of just that picture gives an empty round.
+     */
+    static List<String> cycleDeck(List<File> images, String previous, Random random) {
+        List<String> names = new ArrayList<>();
+        for (File image : images) if (!image.getName().equals(previous)) names.add(image.getName());
+        Collections.shuffle(names, random);
+        return names;
     }
 
     static List<File> images(File directory) {
@@ -80,6 +93,15 @@ final class WallpaperRotation {
     /** Picks the next picture for {@code order}; an unknown order keeps the historical shuffle. */
     static File pick(List<File> images, String previous, String order, Random random) {
         return ORDER_SEQUENTIAL.equals(order) ? next(images, previous) : pick(images, previous, random);
+    }
+
+    /** The first name still in the round, removed from it; null when the round is over. */
+    static File draw(List<File> images, List<String> deck) {
+        while (!deck.isEmpty()) {
+            File image = find(images, deck.remove(0));
+            if (image != null) return image;
+        }
+        return null;
     }
 
     static boolean due(long previous, long now, long interval) {

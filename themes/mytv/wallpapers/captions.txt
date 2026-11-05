@@ -1,49 +1,49 @@
-# Photo credits: file<TAB>title - author (initial set)
-001.jpg	Spiti River Right Bank Vista Himachal Jun18 D72 7645 · Timothy A. Gonsalves.  F…
-002.jpg	Centro de Ciencia, Macao, 2013-08-08, DD 09 · Diego Delso
-003.jpg	View of Psebaisky Zoological Reserve in Krasnodar Krai, Russia - 2017 · Horoshi…
-004.jpg	Jerusalem-A-Quds-2013(2)-Aerial-Al-Aqsa Mosque Compound-(south exposure) · Godo…
-005.jpg	Bangkok skytrain sunset · Diliff
-006.jpg	Sunset of Mykonos · Roberto Faccenda
-007.jpg	Algar do Carvao, isla de Terceira, Azores, Portugal, 2020-07-25, DD 68-70 HDR ·…
-008.jpg	Ermita de la Virgen de la Mencalilla, Almazul, Soria, España, 2015-12-29, DD 33…
-009.jpg	20100911 Kotani village close panorama Xanthi Thrace Greece · Ggia
-010.jpg	Buitrago del Lozoya - 04 · Carlos Delgado
-011.jpg	Ayuntamiento y Shard, Londres, Inglaterra, 2014-08-11, DD 076.JPG · Diego Delso
-012.jpg	International Commerce Centre on Victoria Harbour · Wilfredor
-013.jpg	2014-09-29 - Reichsbrücke-Donau City-Sunken City · Hubertl
-014.jpg	Hong Kong Skyline Restitch - Dec 2007 · Diliff
-015.jpg	Dülmen, Dernekamp, Mini Hatch Cooper -- 2018 -- 1545-51 · Dietmar Rabich
-016.jpg	Three golden statues of the Buddha at Wat Mai with colorful clouds at sunset in…
-017.jpg	Lower Manhattan from Jersey City July 2014 002 · King of Hearts
-018.jpg	Bergtocht van Gimillan (1805m.) naar Colle Tsa Sètse in Cogne Valley (Italië).…
-019.jpg	High rise view of Capitol Hill at night, looking east from Pine and 9th · Dllu
-020.jpg	A14 Rheintalautobahn.JPG · Feel free to use my photos, but please m
-021.jpg	Icelandic Landscape near Neskaupstaður July 2014.JPG · Martin Falbisoner
-022.jpg	San Diego Reflecting Pond · Rufustelestrat
-023.jpg	Cañón Silfra, Parque Nacional de Þingvellir, Suðurland, Islandia, 2014-08-16, D…
-024.jpg	Chinon from above.JPG · Martin Falbisoner
-025.jpg	Crimea, Ai-Petri, low clouds · Dmytro Balkhovitin
-026.jpg	Skyline of the Central Business District of Singapore with Esplanade Bridge in…
-027.jpg	Iceland - 2017-02-22 - Gullfoss - 3684 · Pierre-Selim Huard
-028.jpg	Landscape with stormy clouds and a pirogue on the Mekong at golden hour in Si P…
-029.jpg	Water reflection of karst mountains at golden hour in Vang Vieng Laos (panorami…
-030.jpg	SeattleI5Skyline · Cacophony
-031.jpg	Skógafoss July 2014.JPG · Martin Falbisoner
-032.jpg	Wrocław - widok z Wyspy Slodowej - wyspa Tamka · Jar.ciurus
-033.jpg	Colorful sky with orange and pink clouds reflecting in the water of a paddy fie…
-034.jpg	Mount Lorette panorama · The Cosmonaut
-035.jpg	Battery Park City New York January 2018 002 · King of Hearts
-036.jpg	Kuang Si Falls and a turquoise water pool in Luang Prabang province Laos · Basi…
-037.jpg	Blasieholmen February 2013 · Arild Vågen
-038.jpg	Manneporte en soir · Jörg Braukmann
-039.jpg	Watzmann (Stanggaß) · Jörg Braukmann
-040.jpg	Skjálfandafljót at Route 1 · Villy Fink Isaksen
-041.jpg	2013-Aerial-Mount of Olives · Godot13
-042.jpg	Innenhafen Duisburg Blaue Stunde 2014 · Tuxyso
-043.jpg	CH.ZG.Zug View from Guggi 01 16x9+R 8192x4608 Br058 gp denoising Br075 · NOTE:…
-044.jpg	Ericushöft (Hamburg-HafenCity).14.12471.ajb · Ajepbah
-045.jpg	Breil-Brigels, Lag da Breil- Flem. 23-09-2022. (actm.) 11 · Agnes Monkelbaan
-046.jpg	Kleinarl Jägersee 20180209 · Uoaei1
-047.jpg	Масив Близниці · Estolyarov
-048.jpg	20090719 Crkva Gospa od Zdravlja Kotor Bay Montenegro · Ggia
+# Photo credits: file<TAB>location - author (initial set)
+001.jpg	Spiti River Right Bank Vista Himachal Jun18 D72 - Timothy A. Gonsalves
+002.jpg	Centro de Ciencia, Macao - Diego Delso
+003.jpg	View of Psebaisky Zoological Reserve in Krasnodar Krai, Russia - HoroshilovAleksandr
+004.jpg	Jerusalem-A-Quds-2013(2)-Aerial-Al-Aqsa Mosque Compound-(south exposure) - Godot13
+005.jpg	Bangkok skytrain sunset - Diliff
+006.jpg	Sunset of Mykonos - Roberto Faccenda
+007.jpg	Algar do Carvao, isla de Terceira, Azores, Portugal - Diego Delso
+008.jpg	Ermita de la Virgen de la Mencalilla, Almazul, Soria, España - Diego Delso
+009.jpg	Kotani village close panorama Xanthi Thrace Greece - Ggia
+010.jpg	Buitrago del Lozoya - 04 - Carlos Delgado
+011.jpg	Ayuntamiento y Shard, Londres, Inglaterra - Diego Delso
+012.jpg	International Commerce Centre on Victoria Harbour - Wilfredor
+013.jpg	Reichsbrücke-Donau City-Sunken City - Hubertl
+014.jpg	Hong Kong Skyline Restitch - Dec - Diliff
+015.jpg	Dülmen, Dernekamp, Mini Hatch Cooper - Dietmar Rabich
+016.jpg	Three golden statues of the Buddha at Wat Mai with colorful clouds at sunset in Luang Prabang Laos - Basile Morin
+017.jpg	Lower Manhattan from Jersey City July 2014 002 - King of Hearts
+018.jpg	Bergtocht van Gimillan (1805m.) naar Colle Tsa Sètse in Cogne Valley (Italië). Zicht op de omringende alpen 01 - Dominicus Johannes Bergsma
+019.jpg	High rise view of Capitol Hill at night, looking east from Pine and 9th - Dllu
+020.jpg	A14 Rheintalautobahn
+021.jpg	Icelandic Landscape near Neskaupstaður - Martin Falbisoner
+022.jpg	San Diego Reflecting Pond - Rufustelestrat
+023.jpg	Cañón Silfra, Parque Nacional de Þingvellir, Suðurland, Islandia - Diego Delso
+024.jpg	Chinon from above - Martin Falbisoner
+025.jpg	Crimea, Ai-Petri, low clouds - Dmytro Balkhovitin
+026.jpg	Skyline of the Central Business District of Singapore with Esplanade Bridge in the evening - Basile Morin
+027.jpg	Iceland - 2017-02-22 - Gullfoss - Pierre-Selim Huard
+028.jpg	Landscape with stormy clouds and a pirogue on the Mekong at golden hour in Si Phan Don - Basile Morin
+029.jpg	Water reflection of karst mountains at golden hour in Vang Vieng Laos (panoramic) - Basile Morin
+030.jpg	SeattleI5Skyline - Cacophony
+031.jpg	Skógafoss - Martin Falbisoner
+032.jpg	Wrocław - widok z Wyspy Slodowej - wyspa Tamka - Jar.ciurus
+033.jpg	Colorful sky with orange and pink clouds reflecting in the water of a paddy field at dusk in Don Det Laos - Basile Morin
+034.jpg	Mount Lorette panorama - The Cosmonaut
+035.jpg	Battery Park City New York January 2018 002 - King of Hearts
+036.jpg	Kuang Si Falls and a turquoise water pool in Luang Prabang province Laos - Basile Morin
+037.jpg	Blasieholmen - Arild Vågen
+038.jpg	Manneporte en soir - Jörg Braukmann
+039.jpg	Watzmann (Stanggaß) - Jörg Braukmann
+040.jpg	Skjálfandafljót at Route 1 - Villy Fink Isaksen
+041.jpg	2013-Aerial-Mount of Olives - Godot13
+042.jpg	Innenhafen Duisburg Blaue Stunde - Tuxyso
+043.jpg	CH.ZG.Zug View from Guggi 01 16x9+R 8192x4608 Br058 gp denoising Br075
+044.jpg	Ericushöft (Hamburg-HafenCity).14.12471.ajb - Ajepbah
+045.jpg	Breil-Brigels, Lag da Breil- Flem. 23-09-2022. (actm.) 11 - Agnes Monkelbaan
+046.jpg	Kleinarl Jägersee - Uoaei1
+047.jpg	Масив Близниці - Estolyarov
+048.jpg	Crkva Gospa od Zdravlja Kotor Bay Montenegro - Ggia
