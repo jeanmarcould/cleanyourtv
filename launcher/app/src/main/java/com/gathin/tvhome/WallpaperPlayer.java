@@ -128,7 +128,8 @@ final class WallpaperPlayer implements Frost.Source {
         SharedPreferences ui = context.getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE);
         int chosenMinutes = ui.getInt("wallpaper_minutes", 0);   // Home settings > Wallpapers; 0 follows the theme
         interval = (chosenMinutes > 0 ? chosenMinutes : config.wallpaperRotationMinutes) * 60_000L;
-        fadeMs = "none".equals(ui.getString("wallpaper_fade", "fade")) ? 0 : ui.getInt("wallpaper_fade_ms", 1600);
+        // 1.6 s fixed: the Wallpapers screen no longer offers a duration.
+        fadeMs = "none".equals(ui.getString("wallpaper_fade", "fade")) ? 0 : 1600;
         bitmapConfig = config.wallpaperTrueColor ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
         // The dim is painted into the picture (decode), so no full-screen shade layer is drawn on every frame.
         dimColor = config.wallpaperDim > 0 ? (config.wallpaperDim * 255 / 100) << 24 : 0;

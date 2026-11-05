@@ -16,7 +16,9 @@ public class HomeCustomizeActivity extends Activity {
                 .setOnClickListener(v -> startActivity(new Intent(this, WeatherSettingsActivity.class)));
         screen.row("3   ·   " + getString(R.string.sec_wallpapers))
                 .setOnClickListener(v -> startActivity(new Intent(this, WallpaperSettingsActivity.class)));
-        screen.row("4   ·   " + getString(R.string.sec_default_launcher))
+        screen.row("4   ·   " + getString(R.string.ambient_mode))
+                .setOnClickListener(v -> startActivity(new Intent(this, AmbientSettingsActivity.class)));
+        screen.row("5   ·   " + getString(R.string.sec_default_launcher))
                 .setOnClickListener(v -> startActivity(new Intent(this, HomeLauncherActivity.class)));
         screen.row(getString(R.string.done)).setOnClickListener(v -> finish());
         screen.column.getChildAt(1).requestFocus();

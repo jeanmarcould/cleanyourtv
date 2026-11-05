@@ -66,6 +66,7 @@
     <string name="setting_time">Time format</string>
     <string name="setting_date">Date format</string>
     <string name="setting_ambient">Ambient mode after</string>
+    <string name="ambient_mode">Ambient mode</string>
     <string name="setting_wallpaper_updates">Daily wallpaper updates</string>
     <string name="refresh_wallpapers">Refresh wallpapers now</string>
     <string name="refresh_wallpapers_toast">New wallpapers will download when you go back to Home.</string>
@@ -96,14 +97,13 @@
     <string name="setting_transition">Transition</string>
     <string name="value_fade">Fade</string>
     <string name="value_none">None (instant)</string>
-    <string name="setting_fade_duration">Fade duration</string>
-    <string name="value_seconds">%1$s s</string>
     <string name="value_hours">%1$d h</string>
     <string name="wallpaper_delete">Delete this wallpaper</string>
     <string name="wallpaper_back">Back to list</string>
 
     <string name="wallpapers_title">Wallpapers (%1$d)</string>
     <string name="wallpapers_manage">Manage wallpapers</string>
+    <string name="wallpapers_view">View wallpapers</string>
     <string name="wallpaper_auto">Downloaded automatically</string>
     <string name="wallpaper_remove_confirm">Press OK again to remove this wallpaper</string>
     <string name="value_system">System</string>

@@ -91,6 +91,7 @@
     <string name="display_settings">Horloge et écran</string>
     <string name="setting_time">Format de l\'heure</string>
     <string name="setting_date">Format de la date</string>
+    <string name="ambient_mode">Mode ambiance</string>
     <string name="setting_ambient">Mode ambiance après</string>
     <string name="setting_wallpaper_updates">Mise à jour quotidienne des fonds d\'écran</string>
     <string name="refresh_wallpapers">Actualiser les fonds d\'écran maintenant</string>
@@ -122,14 +123,13 @@
     <string name="setting_transition">Transition</string>
     <string name="value_fade">Fondu</string>
     <string name="value_none">Aucune (instantané)</string>
-    <string name="setting_fade_duration">Durée du fondu</string>
-    <string name="value_seconds">%1$s s</string>
     <string name="value_hours">%1$d h</string>
     <string name="wallpaper_delete">Supprimer ce fond d\'écran</string>
     <string name="wallpaper_back">Retour à la liste</string>
 
     <string name="wallpapers_title">Fonds d\'écran (%1$d)</string>
     <string name="wallpapers_manage">Gérer les fonds d\'écran</string>
+    <string name="wallpapers_view">Voir les fonds d\'écran</string>
     <string name="wallpaper_auto">Téléchargé automatiquement</string>
     <string name="wallpaper_remove_confirm">Appuyez de nouveau sur OK pour supprimer ce fond d\'écran</string>
     <string name="value_system">Système</string>

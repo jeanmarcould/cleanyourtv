@@ -163,6 +163,16 @@
             android:excludeFromRecents="true"
             android:theme="@style/Theme.TvHome" />
         <activity
+            android:name=".WallpaperManageActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.TvHome" />
+        <activity
+            android:name=".AmbientSettingsActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.TvHome" />
+        <activity
             android:name=".DisplaySettingsActivity"
             android:exported="false"
             android:excludeFromRecents="true"
