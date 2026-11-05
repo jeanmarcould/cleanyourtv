@@ -9,7 +9,7 @@ import android.widget.TextView;
 public class DisplaySettingsActivity extends Activity {
     private static final String[] TIME = {"system", "12", "24"};
     private static final String[] DATE = {"short", "long", "numeric"};
-    private static final int[] AMBIENT = {0, 2, 5, 10, 15, 30};
+    private static final int[] AMBIENT = {0, 1, 2, 5, 10, 15, 30};
 
     private SharedPreferences settings;
     private TextView timeRow, dateRow, ambientRow;
@@ -34,7 +34,7 @@ public class DisplaySettingsActivity extends Activity {
             changed();
         });
         ambientRow.setOnClickListener(v -> {
-            int i = (SettingsScreen.indexOf(AMBIENT, settings.getInt("ambient_minutes", 5)) + 1) % AMBIENT.length;
+            int i = (SettingsScreen.indexOf(AMBIENT, settings.getInt("ambient_minutes", 1)) + 1) % AMBIENT.length;
             settings.edit().putInt("ambient_minutes", AMBIENT[i]).apply();
             changed();
         });
@@ -55,7 +55,7 @@ public class DisplaySettingsActivity extends Activity {
         String date = settings.getString("date_style", "short");
         dateRow.setText(getString(R.string.setting_date) + "   ·   "
                 + getString("long".equals(date) ? R.string.value_date_long : "numeric".equals(date) ? R.string.value_date_numeric : R.string.value_date_short));
-        int ambient = settings.getInt("ambient_minutes", 5);
+        int ambient = settings.getInt("ambient_minutes", 1);
         ambientRow.setText(getString(R.string.setting_ambient) + "   ·   "
                 + (ambient == 0 ? getString(R.string.value_off) : getString(R.string.value_minutes, ambient)));
     }

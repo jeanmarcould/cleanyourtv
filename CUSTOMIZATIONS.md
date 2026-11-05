@@ -6,7 +6,7 @@ Branch `chiq-ai-pont-custom`, on top of upstream. Not pushed anywhere.
 - Frosted glass built from a pre-blurred copy of the wallpaper (`Frost`, `DrawerFrost`, `LeftFrost`, `DockDecoration`).
 - Clock and weather panels, one dock tile each (`LeftFrost`, `WeatherPanel`, `Weather`, `WeatherIcon`: outline, filled, colorful sets).
 - Wallpaper crossfade, daily/weekly/monthly updates from Wikimedia Commons with credits (`WallpaperPlayer`, `WallpaperUpdater`).
-- Ambient mode after idle: only the panels, the wallpaper and the photo credit (`MainActivity`).
+- Ambient mode after idle, one minute by default (`ambient_minutes`, in Clock settings): only the panels, the wallpaper and the photo credit (`MainActivity`). The panels stay put; the per-minute random drift was removed.
 - Gear menu: Network, Go to Google TV Home, Reorder apps, Customize home screen, Settings.
 - Customize home screen: Clock, Weather, Wallpapers (settings + manager), Default home launcher.
 - Home key helper: Home over a screensaver, default-launcher switch, power-on redirect of the Google TV home (`HomeKeyService`).

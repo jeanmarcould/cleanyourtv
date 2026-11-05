@@ -78,7 +78,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
-import java.util.Random;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -153,12 +152,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private final Runnable weatherTick = this::weatherTickNow;
 
     // ---- ambient mode: after a while idle on Home only the clock panel, the wallpaper and its credit stay ----
-    private static final long AMBIENT_DEFAULT_MIN = 5;
+    private static final long AMBIENT_DEFAULT_MIN = 1;
     private boolean ambientMode;
     private long ambientSwallowUntil;
     private TextView ambientCredit;
     private final Runnable enterAmbient = this::startAmbient;
-    private final Runnable driftClock = this::driftClockPanel;
     private GlassView glass;
     private View ambient;
     private TextView heroName;
@@ -1444,7 +1442,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         findViewById(R.id.topButtons).animate().alpha(0f).setDuration(700).start();
         drawerFrost.animate().alpha(0f).setDuration(700).start();
         ambientCredit.animate().alpha(1f).setDuration(900).start();
-        root.postDelayed(driftClock, MINUTE_MS);
     }
 
     private void updateAmbientCredit() {
@@ -1453,20 +1450,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         ambientCredit.setText(credit == null ? "" : credit);
     }
 
-    /** The clock panel shifts a few pixels each minute, so a static panel does not sit on the same pixels for hours. */
-    private void driftClockPanel() {
-        if (!ambientMode) return;
-        Random r = new Random();
-        float dx = r.nextInt(Math.round(28 * density)), dy = r.nextInt(Math.round(20 * density));
-        findViewById(R.id.leftBlock).animate().translationX(dx).translationY(dy).setDuration(3000).start();
-        weatherPanel.animate().translationX(dx).translationY(dy).setDuration(3000).start();
-        root.postDelayed(driftClock, MINUTE_MS);
-    }
-
     private void exitAmbient() {
         if (!ambientMode) return;
         ambientMode = false;
-        root.removeCallbacks(driftClock);
         grid.animate().cancel();
         findViewById(R.id.topButtons).animate().cancel();
         grid.setAlpha(1f);
