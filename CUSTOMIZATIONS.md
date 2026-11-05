@@ -1,6 +1,6 @@
 # CHiQ AI PONT (Changhong DVB64, Android 14): local customizations
 
-Branch `chiq-ai-pont-custom`, on top of upstream. Not pushed anywhere.
+Branch `chiq-ai-pont-custom`, on upstream 3.4 (`fc148d5a`; launcher versionName 3.4, versionCode 13). Not pushed anywhere.
 
 ## What was changed in the launcher
 - Frosted glass built from a pre-blurred copy of the wallpaper (`Frost`, `DrawerFrost`, `LeftFrost`, `DockDecoration`).
@@ -34,3 +34,26 @@ Do not use `am force-stop` on the launcher: it removes its accessibility service
 
 ## Known gaps
 - Wireless debugging authorization is lost whenever the TV restarts: pair again with `adb pair`.
+
+## Change log
+
+### 2026-11-05
+- Ambient mode: the clock and weather panels no longer drift while Home sits idle, and ambient starts after
+  one minute instead of five (the Clock settings cycle now includes 1). Committed as `16bed024`.
+- Merged upstream 3.4 (`fc148d5a`) into the branch as `5d319c42`. The single conflict was the `tile_menu`
+  block in `config.xml`: resolved to the upstream comment with the value true, keeping the local dock apps,
+  `fill_dock` false, `top_menu` true and the `com.cltv.hybrid` Live TV package. Taken from upstream:
+  ClockRefresh, MemInfo, `inputs_cec_state_only`, the Add-to-dock fix, the Xiaomi picture shortcut and the
+  Hebrew bar fix. Nothing local was dropped.
+- Built 3.4 (versionCode 13) and installed it over the TV's 3.2 with `adb install -r` while YouTube was in
+  front. The APK carries the same debug certificate as the installed one, so the upgrade needed no uninstall
+  and no app on screen was stopped. The accessibility list was refreshed afterwards and all three services
+  (tvQuickActions, HomeKeyService, InputKeyService) are bound again.
+- The release APK is 621,761 B, above upstream's 589,824 B gate; the local build was already over it before
+  the merge, and the gate only applies to upstream PRs.
+- Removed the one-off `CODEX_RECAP_2026-11-04.md`; its lasting facts live in this file.
+
+### Notes for future merges
+- Upstream has no ambient mode and no `ambient_minutes`. `DisplaySettingsActivity`, `WeatherPanel`,
+  `LeftFrost`, `WallpaperUpdater` and the ambient code in `MainActivity` are local-only: they never conflict
+  with upstream, but no merge will maintain them for us.
